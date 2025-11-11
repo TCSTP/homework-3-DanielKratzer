@@ -1,14 +1,39 @@
 package tcs.app.dev.homework1
 
+import android.graphics.drawable.Icon
+import android.graphics.pdf.content.PdfPageGotoLinkContent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import org.w3c.dom.Text
 import tcs.app.dev.homework1.data.Cart
 import tcs.app.dev.homework1.data.Discount
+import tcs.app.dev.homework1.data.MockData
 import tcs.app.dev.homework1.data.Shop
+import tcs.app.dev.ui.theme.AppTheme
 
 /**
  * # Homework 3 — Shop App
@@ -68,9 +93,9 @@ import tcs.app.dev.homework1.data.Shop
  *        button to return to the shop.
  *
  * - **Bottom bar**:
-*       - In Shop/Discounts, show a 2-tab bottom bar to switch between **Shop** and **Discounts**.
-*       - In Cart, hide the tab bar and instead show the cart bottom bar with the total and **Pay**
-*         action as described above.
+ *       - In Shop/Discounts, show a 2-tab bottom bar to switch between **Shop** and **Discounts**.
+ *       - In Cart, hide the tab bar and instead show the cart bottom bar with the total and **Pay**
+ *         action as described above.
  *
  * ## Hints
  * - Keep your cart as a single source of truth and derive counts/price from it.
@@ -92,6 +117,7 @@ import tcs.app.dev.homework1.data.Shop
  * - [Pager](https://developer.android.com/develop/ui/compose/layouts/pager)
  *
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
     shop: Shop,
@@ -99,5 +125,79 @@ fun ShopScreen(
     modifier: Modifier = Modifier
 ) {
     var cart by rememberSaveable { mutableStateOf(Cart(shop = shop)) }
+    val navController = rememberNavController()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
 
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {
+                    Text(
+                        "MAD Shop",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                actions = {
+                    IconButton(onClick = { /* do something */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        bottomBar = {
+            NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+                NavigationBarItem(
+                    selected = selectedDestination == 0,
+                    onClick = {
+
+                        selectedDestination = 0
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Apps,
+                            contentDescription = "Shop Icon"
+                        )
+                    },
+                    label = { Text("Items") }
+                )
+                NavigationBarItem(
+                    selected = selectedDestination == 1,
+                    onClick = {
+
+                        selectedDestination = 1
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Percent,
+                            contentDescription = "Discount Icon"
+                        )
+                    },
+                    label = { Text("Discounts") }
+                )
+
+            }
+        }
+    ) {
+    }
+
+}
+
+
+@Composable
+@Preview
+fun ShopScreenPreview() {
+    AppTheme() {
+        ShopScreen(shop = MockData.ExampleShop, MockData.ExampleDiscounts)
+    }
 }
