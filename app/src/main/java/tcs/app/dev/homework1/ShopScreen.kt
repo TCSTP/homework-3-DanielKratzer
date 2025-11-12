@@ -1,7 +1,5 @@
 package tcs.app.dev.homework1
 
-import android.graphics.drawable.Icon
-import android.graphics.pdf.content.PdfPageGotoLinkContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Percent
@@ -20,15 +18,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
-import org.w3c.dom.Text
+
 import tcs.app.dev.homework1.data.Cart
 import tcs.app.dev.homework1.data.Discount
 import tcs.app.dev.homework1.data.MockData
@@ -117,6 +113,10 @@ import tcs.app.dev.ui.theme.AppTheme
  * - [Pager](https://developer.android.com/develop/ui/compose/layouts/pager)
  *
  */
+
+enum class TabState{
+    Items, Discounts, Cart
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
@@ -125,9 +125,9 @@ fun ShopScreen(
     modifier: Modifier = Modifier
 ) {
     var cart by rememberSaveable { mutableStateOf(Cart(shop = shop)) }
-    val navController = rememberNavController()
+
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
+    var selectedTab by rememberSaveable { mutableStateOf(TabState.Items) }
 
     Scaffold(
         modifier = modifier,
@@ -158,10 +158,10 @@ fun ShopScreen(
         bottomBar = {
             NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
                 NavigationBarItem(
-                    selected = selectedDestination == 0,
+                    selected = selectedTab == TabState.Items,
                     onClick = {
 
-                        selectedDestination = 0
+                        selectedTab = TabState.Items
                     },
                     icon = {
                         Icon(
@@ -172,10 +172,10 @@ fun ShopScreen(
                     label = { Text("Items") }
                 )
                 NavigationBarItem(
-                    selected = selectedDestination == 1,
+                    selected = selectedTab == TabState.Discounts,
                     onClick = {
 
-                        selectedDestination = 1
+                        selectedTab = TabState.Discounts
                     },
                     icon = {
                         Icon(
@@ -189,6 +189,7 @@ fun ShopScreen(
             }
         }
     ) {
+
     }
 
 }
