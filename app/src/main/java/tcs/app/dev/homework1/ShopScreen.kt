@@ -1,9 +1,11 @@
 package tcs.app.dev.homework1
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -114,9 +116,10 @@ import tcs.app.dev.ui.theme.AppTheme
  *
  */
 
-enum class TabState{
+enum class TabState {
     Items, Discounts, Cart
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
@@ -138,14 +141,17 @@ fun ShopScreen(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text(
-                        "MAD Shop",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    if (selectedTab == TabState.Cart) {
+                        Text("Cart")
+                    } else {
+                        Text("MAD-Shop")
+                    }
                 },
                 actions = {
-                    IconButton(onClick = { /* do something */ }) {
+                    IconButton(
+                        onClick = { selectedTab = TabState.Cart },
+                        enabled = cart.itemCount != 0u
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.ShoppingCart,
                             contentDescription = "Localized description"
@@ -156,40 +162,60 @@ fun ShopScreen(
             )
         },
         bottomBar = {
-            NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-                NavigationBarItem(
-                    selected = selectedTab == TabState.Items,
-                    onClick = {
+            if (selectedTab == TabState.Cart) {
+                BottomAppBar {
+                    Text("Total Price: ${cart.price}")
+                }
+            } else {
+                NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+                    NavigationBarItem(
+                        selected = selectedTab == TabState.Items,
+                        onClick = {
 
-                        selectedTab = TabState.Items
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Filled.Apps,
-                            contentDescription = "Shop Icon"
-                        )
-                    },
-                    label = { Text("Items") }
-                )
-                NavigationBarItem(
-                    selected = selectedTab == TabState.Discounts,
-                    onClick = {
+                            selectedTab = TabState.Items
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Filled.Apps,
+                                contentDescription = "Shop Icon"
+                            )
+                        },
+                        label = { Text("Items") }
+                    )
+                    NavigationBarItem(
+                        selected = selectedTab == TabState.Discounts,
+                        onClick = {
 
-                        selectedTab = TabState.Discounts
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Filled.Percent,
-                            contentDescription = "Discount Icon"
-                        )
-                    },
-                    label = { Text("Discounts") }
-                )
-
+                            selectedTab = TabState.Discounts
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Filled.Percent,
+                                contentDescription = "Discount Icon"
+                            )
+                        },
+                        label = { Text("Discounts") }
+                    )
+                }
             }
         }
-    ) {
+    ) { paddingValues ->
+        when (selectedTab) {
+            TabState.Items -> ItemTab(
+                cart,
+                modifier.padding(paddingValues)
+            )
 
+            TabState.Discounts -> DiscountTab(
+                cart,
+                modifier.padding(paddingValues)
+            )
+
+            TabState.Cart -> CartTab(
+                cart,
+                modifier.padding(paddingValues)
+            )
+        }
     }
 
 }
