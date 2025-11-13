@@ -3,6 +3,7 @@ package tcs.app.dev.homework1
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Discount
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
@@ -24,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 
 import tcs.app.dev.homework1.data.Cart
@@ -125,12 +125,13 @@ enum class TabState {
 fun ShopScreen(
     shop: Shop,
     availableDiscounts: List<Discount>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    startState: TabState = TabState.Items
 ) {
     var cart by rememberSaveable { mutableStateOf(Cart(shop = shop)) }
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    var selectedTab by rememberSaveable { mutableStateOf(TabState.Items) }
+    var tab by rememberSaveable { mutableStateOf(startState) }
 
     Scaffold(
         modifier = modifier,
@@ -141,7 +142,7 @@ fun ShopScreen(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    if (selectedTab == TabState.Cart) {
+                    if (tab == TabState.Cart) {
                         Text("Cart")
                     } else {
                         Text("MAD-Shop")
@@ -149,7 +150,9 @@ fun ShopScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = { selectedTab = TabState.Cart },
+                        onClick = {
+                            tab = TabState.Cart
+                        },
                         enabled = cart.itemCount != 0u
                     ) {
                         Icon(
@@ -159,20 +162,21 @@ fun ShopScreen(
                     }
                 },
                 scrollBehavior = scrollBehavior,
+                modifier = modifier,
             )
         },
         bottomBar = {
-            if (selectedTab == TabState.Cart) {
+            if (tab == TabState.Cart) {
                 BottomAppBar {
                     Text("Total Price: ${cart.price}")
                 }
             } else {
                 NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
                     NavigationBarItem(
-                        selected = selectedTab == TabState.Items,
+                        selected = tab == TabState.Items,
                         onClick = {
 
-                            selectedTab = TabState.Items
+                            tab = TabState.Items
                         },
                         icon = {
                             Icon(
@@ -183,14 +187,14 @@ fun ShopScreen(
                         label = { Text("Items") }
                     )
                     NavigationBarItem(
-                        selected = selectedTab == TabState.Discounts,
+                        selected = tab == TabState.Discounts,
                         onClick = {
 
-                            selectedTab = TabState.Discounts
+                            tab = TabState.Discounts
                         },
                         icon = {
                             Icon(
-                                Icons.Filled.Percent,
+                                Icons.Filled.Discount,
                                 contentDescription = "Discount Icon"
                             )
                         },
@@ -200,7 +204,7 @@ fun ShopScreen(
             }
         }
     ) { paddingValues ->
-        when (selectedTab) {
+        when (tab) {
             TabState.Items -> ItemTab(
                 cart,
                 modifier.padding(paddingValues)
@@ -226,5 +230,21 @@ fun ShopScreen(
 fun ShopScreenPreview() {
     AppTheme() {
         ShopScreen(shop = MockData.ExampleShop, MockData.ExampleDiscounts)
+    }
+}
+
+@Composable
+@Preview
+fun ShopScreenPreviewD() {
+    AppTheme() {
+        ShopScreen(shop = MockData.ExampleShop, MockData.ExampleDiscounts, startState = TabState.Discounts)
+    }
+}
+
+@Composable
+@Preview
+fun ShopScreenPreviewC() {
+    AppTheme() {
+        ShopScreen(shop = MockData.ExampleShop, MockData.ExampleDiscounts, startState = TabState.Cart)
     }
 }
