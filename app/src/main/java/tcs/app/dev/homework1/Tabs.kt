@@ -14,14 +14,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import tcs.app.dev.homework1.data.Cart
 import tcs.app.dev.homework1.data.Discount
+import tcs.app.dev.homework1.data.Euro
+import tcs.app.dev.homework1.data.Item
 import tcs.app.dev.homework1.data.MockData
 import tcs.app.dev.homework1.data.Shop
+import tcs.app.dev.homework1.data.minus
 import tcs.app.dev.homework1.data.plus
 import tcs.app.dev.ui.theme.AppTheme
 
 @Composable
 fun ItemTab(
-    cart: Cart,
+    add: (Item) -> Unit,
     modifier: Modifier
 ) {
     Column(
@@ -30,15 +33,15 @@ fun ItemTab(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        for (item in cart.shop.prices.keys) {
-            ItemCard(modifier = Modifier, item, add = { i -> cart + i })
+        for (item in MockData.ExampleShop.items) {
+            ItemCard(modifier = Modifier, item, add = add)
         }
     }
 }
 
 @Composable
 fun DiscountTab(
-    cart: Cart,
+    add: (Discount) -> Unit,
     modifier: Modifier
 ) {
     Column(
@@ -48,24 +51,52 @@ fun DiscountTab(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         for (discount in MockData.ExampleDiscounts) {
-            DiscountCard(modifier = Modifier, discount, add = { i -> cart + i })
+            DiscountCard(modifier = Modifier, discount, add = add)
         }
     }
 }
 
 
-
 @Composable
 fun CartTab(
     cart: Cart,
+    addItem: (Item) -> Unit,
+    addDiscount: (Discount) -> Unit,
+    removeItem: (Item) -> Unit,
+    removeDiscount: (Discount) -> Unit,
     modifier: Modifier
 ) {
-}
+    Column(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.secondaryContainer),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        for ((item, amount) in cart.items) {
+            CartItemCard(
+                modifier = Modifier,
+                item,
+                add = { addItem(item) },
+                remove = { removeItem(item) },
+                amount=amount,
+                price = cart.shop.prices[item] ?: Euro(0u)
+            )
 
-@Composable
-@Preview
-fun ItemTabPreview() {
-    AppTheme() {
-        ItemTab(Cart(MockData.ExampleShop), modifier = Modifier)
+        }
+        for (discount in cart.discounts) {
+            CartDiscountCard(
+                modifier = Modifier,
+                discount,
+                add = { addDiscount(discount) },
+                remove = { removeDiscount(discount) })
+        }
     }
 }
+
+//@Composable
+//@Preview
+//fun ItemTabPreview() {
+//    AppTheme() {
+//        ItemTab(Cart(MockData.ExampleShop), modifier = Modifier)
+//    }
+//}
